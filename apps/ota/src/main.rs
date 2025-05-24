@@ -5,6 +5,7 @@ use tracing::info;
 mod db;
 mod metrics;
 mod models;
+mod openapi;
 mod router;
 mod routes;
 mod services;

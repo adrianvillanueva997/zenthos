@@ -16,7 +16,6 @@ async fn main() {
                 .unwrap(),
         )
         .init();
-
     let app = Router::new()
         .layer(TraceLayer::new_for_http())
         .route("/", get(root))
@@ -26,7 +25,6 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-// basic handler that responds with a static string
 async fn root() -> &'static str {
     "Hello, World!"
 }

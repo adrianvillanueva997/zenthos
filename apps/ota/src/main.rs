@@ -2,8 +2,11 @@ use metrics::create_opentelemetry_layer;
 use router::create_router;
 use tracing::info;
 
+mod auth;
 mod db;
+mod events;
 mod metrics;
+mod middlewares;
 mod models;
 mod openapi;
 mod router;

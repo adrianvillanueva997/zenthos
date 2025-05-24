@@ -6,6 +6,7 @@ use tracing_subscriber::{EnvFilter, prelude::*};
 use opentelemetry_stdout::LogExporter;
 use tracing_subscriber::layer::Layer;
 
+//TODO: Fix this shit
 pub fn create_opentelemetry_layer() {
     let exporter = LogExporter::default();
     let provider: SdkLoggerProvider = SdkLoggerProvider::builder()

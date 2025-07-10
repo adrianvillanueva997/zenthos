@@ -1,0 +1,93 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    # Batching for efficiency
+    timeout: 5s
+    send_batch_size: 2048
+  memory_limiter:
+    # Protects the collector from OOMing
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+  attributes:
+    # Adds a global 'environment' attribute
+    actions:
+      - key: environment
+        value: "production"
+        action: insert
+  probabilistic_sampler:
+    # Samples 25% of traces for Tempo
+    sampling_percentage: 25
+
+exporters:
+  otlp:
+    # Exporter for traces to Tempo
+    endpoint: tempo:4317 # Refers to the 'tempo' service in docker-compose
+    tls:
+      insecure: true # Use insecure for local development
+    sending_queue:
+      enabled: true
+      queue_size: 5000
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  loki:
+    # Exporter for logs to Loki
+    endpoint: http://loki:3100/loki/api/v1/push # Refers to the 'loki' service
+    tls:
+      insecure: true # Use insecure for local development
+    # 'format' and 'labels' are NOT direct keys under the loki exporter itself for logs
+    # For controlling Loki labels, you generally use processors like 'resource_to_logs' or 'attributes'
+    # to move attributes to the log record or resource level, which Loki's OTLP receiver
+    # will then convert to labels based on its own config.
+    sending_queue: # This should be valid for the Loki exporter in contrib
+      enabled: true
+      queue_size: 5000
+    retry_on_failure:
+      enabled: true
+
+  prometheus:
+    # Exporter for metrics, exposed as a scrape endpoint for Prometheus to pull from
+    endpoint: 0.0.0.0:8889 # OTel Collector will expose its internal metrics here for Prometheus to scrape
+    namespace: otel
+    send_timestamps: true
+    metric_expiration: 720h # 30 days retention
+    resource_to_telemetry_conversion:
+      enabled: true
+    # 'sending_queue' is not valid for a pull-based (scrape) exporter like 'prometheus'
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, probabilistic_sampler, batch] # Apply sampling to traces
+      exporters: [otlp] # Send traces to Tempo (via the otlp exporter configured above)
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes, batch] # Add 'environment' attribute to metrics
+      exporters: [prometheus] # Expose metrics for Prometheus to scrape
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes, batch] # Add 'environment' attribute to logs
+      exporters: [loki] # Send logs to Loki
+
+  telemetry:
+    # Configuration for the OpenTelemetry Collector's own internal metrics and logs
+    metrics:
+      # 'address' is NOT directly under 'metrics' here.
+      # The collector exposes its own metrics on the port mapped in docker-compose (8888 by default for the image).
+      level: "basic" # Controls the verbosity of internal metrics
+    logs:
+      level: "info" # Controls the verbosity of collector's internal logs

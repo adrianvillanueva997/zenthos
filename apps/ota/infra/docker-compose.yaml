@@ -1,5 +1,5 @@
 services:
-  # OpenTelemetry Collector
+ # Grafana Agent for OTLP logs → Loki
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.129.1
     container_name: otel-collector
@@ -44,10 +44,12 @@ services:
     image: grafana/loki:main-99d9f1c
     container_name: loki
     restart: unless-stopped
+    volumes:
+      # EXACT ORIGINAL PATH for Tempo config
+      - /Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/loki.yaml:/etc/loki.yaml
     ports:
       - "3100:3100" # Loki HTTP API (for pushing from collector and querying from Grafana)
-
-  # Prometheus for Metrics
+    command: ["-config.file=/etc/loki.yaml"]
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

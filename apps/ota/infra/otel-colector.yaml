@@ -23,8 +23,7 @@ processors:
         value: "production"
         action: insert
   probabilistic_sampler:
-    # Samples 25% of traces for Tempo
-    sampling_percentage: 25
+    sampling_percentage: 100
 
 exporters:
   otlp:
@@ -41,20 +40,10 @@ exporters:
       max_interval: 30s
       max_elapsed_time: 300s
 
-  loki:
-    # Exporter for logs to Loki
-    endpoint: http://loki:3100/loki/api/v1/push # Refers to the 'loki' service
+  otlp/grafana-agent:
+    endpoint: grafana-agent:4317
     tls:
-      insecure: true # Use insecure for local development
-    # 'format' and 'labels' are NOT direct keys under the loki exporter itself for logs
-    # For controlling Loki labels, you generally use processors like 'resource_to_logs' or 'attributes'
-    # to move attributes to the log record or resource level, which Loki's OTLP receiver
-    # will then convert to labels based on its own config.
-    sending_queue: # This should be valid for the Loki exporter in contrib
-      enabled: true
-      queue_size: 5000
-    retry_on_failure:
-      enabled: true
+      insecure: true
 
   prometheus:
     # Exporter for metrics, exposed as a scrape endpoint for Prometheus to pull from
@@ -80,8 +69,7 @@ service:
 
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, attributes, batch] # Add 'environment' attribute to logs
-      exporters: [loki] # Send logs to Loki
+      exporters: [otlp/grafana-agent]
 
   telemetry:
     # Configuration for the OpenTelemetry Collector's own internal metrics and logs

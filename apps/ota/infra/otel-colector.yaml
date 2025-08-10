@@ -40,11 +40,6 @@ exporters:
       max_interval: 30s
       max_elapsed_time: 300s
 
-  otlp/grafana-agent:
-    endpoint: grafana-agent:4317
-    tls:
-      insecure: true
-
   prometheus:
     # Exporter for metrics, exposed as a scrape endpoint for Prometheus to pull from
     endpoint: 0.0.0.0:8889 # OTel Collector will expose its internal metrics here for Prometheus to scrape
@@ -54,7 +49,8 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
     # 'sending_queue' is not valid for a pull-based (scrape) exporter like 'prometheus'
-
+  otlphttp:
+    endpoint: http://loki:3100/otlp
 service:
   pipelines:
     traces:
@@ -69,7 +65,7 @@ service:
 
     logs:
       receivers: [otlp]
-      exporters: [otlp/grafana-agent]
+      exporters: [otlphttp]
 
   telemetry:
     # Configuration for the OpenTelemetry Collector's own internal metrics and logs

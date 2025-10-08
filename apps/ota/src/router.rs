@@ -9,8 +9,8 @@ use utoipa_swagger_ui::SwaggerUi;
 
 pub fn create_router() -> Router {
     let router = Router::new()
-        .route("/health", get(r_health))
-        .route("/firmware", get(r_firmware))
+        .route("/api/v1/health", get(r_health))
+        .route("/api/v1/firmware", get(r_firmware))
         .layer(TraceLayer::new_for_http());
 
     router.merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))

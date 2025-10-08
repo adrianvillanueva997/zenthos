@@ -16,7 +16,7 @@ pub struct HealthResponse {
 /// Returns information about the service health and version.
 #[utoipa::path(
     get,
-    path = "/health",
+    path = "/api/v1/health",
     responses(
         (status = 200, description = "Service is healthy", body = HealthResponse)
     )

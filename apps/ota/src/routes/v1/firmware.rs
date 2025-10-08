@@ -10,7 +10,7 @@ use tracing::instrument;
 /// Returns the firmware binary file for OTA updates.
 #[utoipa::path(
     get,
-    path = "/firmware",
+    path = "/api/v1/firmware",
     responses(
         (status = 200, description = "Firmware binary", content_type = "application/octet-stream")
     )

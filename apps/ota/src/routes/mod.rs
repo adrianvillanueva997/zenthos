@@ -1,2 +1,1 @@
-pub mod firmware;
-pub mod health;
+pub mod v1;

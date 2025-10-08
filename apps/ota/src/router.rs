@@ -1,6 +1,6 @@
 use crate::{
     openapi::ApiDoc,
-    routes::{firmware::r_firmware, health::r_health},
+    routes::v1::{firmware::r_firmware, health::r_health},
 };
 use axum::{Router, routing::get};
 use tower_http::trace::TraceLayer;

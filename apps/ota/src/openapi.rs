@@ -1,6 +1,6 @@
 use utoipa::OpenApi;
 
-use crate::routes::{firmware, health};
+use crate::routes::v1::{firmware, health};
 
 // Define API documentation tags
 const HEALTH_TAG: &str = "health";

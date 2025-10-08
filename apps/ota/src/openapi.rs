@@ -11,7 +11,7 @@ const FIRMWARE_TAG: &str = "firmware";
 #[openapi(
     paths(
         health::r_health,
-        firmware::firmware
+        firmware::r_firmware
     ),
     components(schemas(
         health::HealthResponse

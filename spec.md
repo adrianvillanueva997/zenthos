@@ -584,4 +584,3 @@ VALUES ('esp32-s3-001', 'esp32-s3', 'adrian', 'v0.1.0', now());
 - **Operational burden:** Managing Promscale/Tempo/Loki/MinIO has overhead; consider managed services if scaling beyond hobby/small deployment.
 
 ---
-

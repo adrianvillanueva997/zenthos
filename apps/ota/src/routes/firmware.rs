@@ -3,6 +3,7 @@ use axum::{
     http::{StatusCode, header},
     response::{IntoResponse, Response},
 };
+use tracing::instrument;
 
 /// Get firmware binary
 ///
@@ -14,7 +15,8 @@ use axum::{
         (status = 200, description = "Firmware binary", content_type = "application/octet-stream")
     )
 )]
-pub async fn firmware() -> impl IntoResponse {
+#[instrument]
+pub async fn r_firmware() -> impl IntoResponse {
     let firmware_data = get_firmware_data().await;
     Response::builder()
         .status(StatusCode::OK)

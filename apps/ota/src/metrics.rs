@@ -4,7 +4,6 @@ use opentelemetry_appender_tracing::layer;
 use opentelemetry_otlp::WithTonicConfig;
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::{Resource, trace::SdkTracerProvider};
-use tracing::info;
 use tracing_subscriber::{EnvFilter, prelude::*};
 
 use opentelemetry_otlp::WithExportConfig;
@@ -53,10 +52,9 @@ pub fn create_opentelemetry_layer() {
         .with(Box::new(otel_log_layer))
         .with(Box::new(fmt_layer))
         .init();
-    let tracer = global::tracer("my_tracer");
-    tracer.in_span("doing_work", |_cx| {
-        println!("test: doing some work");
-        tracing::info!("This is an info log from tracing inside the span!");
-    });
-    info!("patata");
+    // let tracer = global::tracer("my_tracer");
+    // tracer.in_span("doing_work", |_cx| {
+    //     println!("test: doing some work");
+    //     tracing::info!("This is an info log from tracing inside the span!");
+    // });
 }

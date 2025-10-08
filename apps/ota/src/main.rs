@@ -1,20 +1,9 @@
 use std::env;
 
-use metrics::create_opentelemetry_layer;
-use router::create_router;
+use ota::metrics::create_opentelemetry_layer;
+use ota::router::create_router;
+use ota::utils;
 use tracing::{error, info, warn};
-mod auth;
-
-mod db;
-mod events;
-mod metrics;
-mod middlewares;
-mod models;
-mod openapi;
-mod router;
-mod routes;
-mod services;
-mod utils;
 
 #[tokio::main]
 async fn main() {

@@ -1,0 +1,82 @@
+services:
+ # Grafana Agent for OTLP logs → Loki
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.129.1
+    container_name: otel-collector
+    restart: unless-stopped
+    volumes:
+      # EXACT ORIGINAL PATH for collector config
+      - /Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/otel-colector.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      # EXCLUSIVE: This must be the ONLY service mapping host port 4317
+      - "4317:4317" # OTLP gRPC receiver (your Rust app sends here)
+      - "4318:4318" # OTLP HTTP receiver (if you ever use HTTP)
+      # Prometheus will scrape these ports from the Collector
+      - "8888:8888" # Collector's own internal metrics
+      - "8889:8889" # Collector's Prometheus exporter
+      # Other useful debug/health ports (optional to expose to host)
+      - "13133:13133" # health_check extension
+      - "1888:1888"   # pprof extension
+      - "55679:55679" # zpages extension
+    environment:
+      # CRITICAL FIX: This MUST match the path inside the container from the volume mount
+      - OTEL_CONFIG=/etc/otelcol-contrib/config.yaml
+    depends_on:
+      - tempo # Ensure Tempo starts before Collector tries to send traces
+      - loki  # Ensure Loki starts before Collector tries to send logs
+
+  # Tempo for Traces
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      # EXACT ORIGINAL PATH for Tempo config
+      - /Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/tempo.yaml:/etc/tempo.yaml
+    ports:
+      # IMPORTANT: REMOVED HOST PORT 4317 MAPPING FOR TEMPO
+      # Tempo will receive OTLP from the collector INTERNALLY on the Docker network.
+      - "3200:3200" # Tempo HTTP API for Grafana/querying from host
+
+  # Loki for Logs
+  loki:
+    image: grafana/loki:main-99d9f1c
+    container_name: loki
+    restart: unless-stopped
+    volumes:
+      # EXACT ORIGINAL PATH for Tempo config
+      - /Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/loki.yaml:/etc/loki.yaml
+    ports:
+      - "3100:3100" # Loki HTTP API (for pushing from collector and querying from Grafana)
+    command: ["-config.file=/etc/loki.yaml"]
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      # EXACT ORIGINAL PATH for Prometheus config
+      - "/Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/prometheus.yaml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090" # Prometheus Web UI
+    environment:
+      - TZ=UTC
+    depends_on:
+      - otel-collector # Prometheus needs Collector to be up to scrape its metrics
+
+  # Optional: Grafana for Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000" # Grafana Web UI
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin # CHANGE THIS FOR PRODUCTION!
+    depends_on:
+      - otel-collector
+      - tempo
+      - loki
+      - prometheus
+

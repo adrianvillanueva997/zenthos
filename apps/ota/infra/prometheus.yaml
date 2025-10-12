@@ -1,0 +1,4 @@
+# /Users/avm/proyectos/personal/iot/zenthos/apps/ota/infra/prometheus.yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s

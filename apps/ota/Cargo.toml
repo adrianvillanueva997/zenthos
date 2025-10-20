@@ -21,6 +21,6 @@ tracing-subscriber = { version = "0.3.20", features = [
 utoipa = { version = "5.4.0", features = ["axum_extras"] }
 utoipa-axum = "0.2.0"
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
-tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
 tower = "0.5.2"
 opentelemetry-otlp = { version = "0.31.0", features = ["grpc-tonic", "tonic", "zstd-tonic"] }

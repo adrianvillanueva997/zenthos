@@ -1,9 +1,0 @@
-[toolchain]
-channel = "stable"
-targets = [
-	"thumbv6m-none-eabi",
-	"thumbv8m.main-none-eabihf",
-	"riscv32imac-unknown-none-elf",
-]
-components = ["rustfmt", "clippy", "rust-src"]
-profile = "default"

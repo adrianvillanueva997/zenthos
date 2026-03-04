@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["apps/ota", "firmware/raspberry_pi_2040"]
+members = []
 
 [profile.release]
 opt-level = 3
@@ -8,6 +8,7 @@ lto = true
 
 [profile.release-firmware]
 inherits = "release"
-opt-level = "z"      # size over speed for embedded
+opt-level = "z"
 lto = true
 codegen-units = 1
+resolver = "3"
